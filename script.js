@@ -34,14 +34,12 @@ class Fighter {
 
     attack() {
         this.isAttacking = true;
-        setTimeout(() => {
-            this.isAttacking = false;
-        }, 200);
+        setTimeout(() => this.isAttacking = false, 200);
     }
 }
 
-const player1 = new Fighter(100, 0, "p1.png");
-const player2 = new Fighter(800, 0, "p2.png");
+const player1 = new Fighter(100, 0, "p1.gif");
+const player2 = new Fighter(800, 0, "p2.gif");
 
 const keys = {};
 
@@ -71,6 +69,7 @@ function animate() {
     player1.update();
     player2.update();
 
+    // Movement
     player1.velocity.x = 0;
     if (keys["a"]) player1.velocity.x = -5;
     if (keys["d"]) player1.velocity.x = 5;
@@ -81,6 +80,7 @@ function animate() {
     if (keys["ArrowRight"]) player2.velocity.x = 5;
     if (keys["ArrowUp"] && player2.velocity.y === 0) player2.velocity.y = -12;
 
+    // Attack collision
     if (player1.isAttacking && rectangularCollision(player1, player2)) {
         player2.health -= 10;
         document.getElementById("p2Health").style.width = player2.health + "%";
@@ -93,11 +93,11 @@ function animate() {
         player2.isAttacking = false;
     }
 
+    // Win conditions
     if (player1.health <= 0) {
         alert("Player 2 Wins!");
         window.location.reload();
     }
-
     if (player2.health <= 0) {
         alert("Player 1 Wins!");
         window.location.reload();
