@@ -21,7 +21,6 @@ class Fighter {
 
     update() {
         this.draw();
-
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
 
@@ -48,10 +47,7 @@ const keys = {};
 
 window.addEventListener("keydown", (e) => {
     keys[e.key] = true;
-
-    // P1 attack
     if (e.key === "f") player1.attack();
-    // P2 attack
     if (e.key === "l") player2.attack();
 });
 
@@ -75,19 +71,16 @@ function animate() {
     player1.update();
     player2.update();
 
-    // Player 1 controls
     player1.velocity.x = 0;
     if (keys["a"]) player1.velocity.x = -5;
     if (keys["d"]) player1.velocity.x = 5;
     if (keys["w"] && player1.velocity.y === 0) player1.velocity.y = -12;
 
-    // Player 2 controls
     player2.velocity.x = 0;
     if (keys["ArrowLeft"]) player2.velocity.x = -5;
     if (keys["ArrowRight"]) player2.velocity.x = 5;
     if (keys["ArrowUp"] && player2.velocity.y === 0) player2.velocity.y = -12;
 
-    // Collision detection
     if (player1.isAttacking && rectangularCollision(player1, player2)) {
         player2.health -= 10;
         document.getElementById("p2Health").style.width = player2.health + "%";
@@ -100,7 +93,6 @@ function animate() {
         player2.isAttacking = false;
     }
 
-    // Win condition
     if (player1.health <= 0) {
         alert("Player 2 Wins!");
         window.location.reload();
