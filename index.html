@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Fighting Game</title>
+<title>Pixel Fighting Game</title>
 <style>
+/* --- General --- */
 body {
     margin: 0;
     background: #222;
@@ -11,18 +12,21 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    font-family: Arial, sans-serif;
-}
-
-.game-container {
-    position: relative;
+    font-family: monospace;
 }
 
 canvas {
+    display: block;
     background: #87CEEB;
     border: 4px solid black;
 }
 
+/* --- Game Container --- */
+.game-container {
+    position: relative;
+}
+
+/* --- Health Bars --- */
 .health-bar {
     position: absolute;
     top: -40px;
@@ -40,23 +44,56 @@ canvas {
 
 .p1 { background: limegreen; }
 .p2 { background: red; }
+
+/* --- Menu --- */
+#menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1000px;
+    height: 500px;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.menu-button {
+    margin: 20px;
+    cursor: pointer;
+    image-rendering: pixelated;
+}
 </style>
 </head>
 <body>
 <div class="game-container">
+    <!-- Menu -->
+    <div id="menu">
+        <img id="startBtn" class="menu-button" src="start.png" alt="Start Button">
+        <img id="optionsBtn" class="menu-button" src="options.png" alt="Options Button">
+    </div>
+
+    <!-- Health Bars -->
     <div class="health-bar">
         <div id="p1Health" class="health p1"></div>
         <div id="p2Health" class="health p2"></div>
     </div>
+
+    <!-- Game Canvas -->
     <canvas id="gameCanvas" width="1000" height="500"></canvas>
 </div>
 
 <script>
-// ---- JS Code ----
+// --- JS Game Code ---
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const gravity = 0.5;
 
+let gameStarted = false;
+
+// Fighter Class
 class Fighter {
     constructor(x, y, imageSrc) {
         this.position = { x: x, y: y };
@@ -87,18 +124,24 @@ class Fighter {
     }
 }
 
-// Use image files in the same folder
+// Players
 const player1 = new Fighter(100, 0, "p1.png");
 const player2 = new Fighter(800, 0, "p2.png");
 
+// Keys
 const keys = {};
 window.addEventListener("keydown", e => { 
+    if (!gameStarted) return;
     keys[e.key] = true; 
     if(e.key==="f") player1.attack(); 
     if(e.key==="l") player2.attack(); 
 });
-window.addEventListener("keyup", e => { keys[e.key] = false; });
+window.addEventListener("keyup", e => { 
+    if (!gameStarted) return;
+    keys[e.key] = false; 
+});
 
+// Collision
 function rectangularCollision(p1, p2) {
     return (
         p1.position.x < p2.position.x + p2.width &&
@@ -108,13 +151,16 @@ function rectangularCollision(p1, p2) {
     );
 }
 
+// Game Loop
 function animate() {
     requestAnimationFrame(animate);
+    if (!gameStarted) return; // pause menu
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     player1.update();
     player2.update();
 
+    // Movement
     player1.velocity.x = 0;
     if (keys["a"]) player1.velocity.x = -5;
     if (keys["d"]) player1.velocity.x = 5;
@@ -125,23 +171,33 @@ function animate() {
     if (keys["ArrowRight"]) player2.velocity.x = 5;
     if (keys["ArrowUp"] && player2.velocity.y === 0) player2.velocity.y = -12;
 
+    // Attack collisions
     if (player1.isAttacking && rectangularCollision(player1, player2)) {
         player2.health -= 10;
         document.getElementById("p2Health").style.width = player2.health + "%";
         player1.isAttacking = false;
     }
-
     if (player2.isAttacking && rectangularCollision(player2, player1)) {
         player1.health -= 10;
         document.getElementById("p1Health").style.width = player1.health + "%";
         player2.isAttacking = false;
     }
 
+    // Win
     if (player1.health <= 0) { alert("Player 2 Wins!"); window.location.reload(); }
     if (player2.health <= 0) { alert("Player 1 Wins!"); window.location.reload(); }
 }
-
 animate();
+
+// --- Menu Buttons ---
+document.getElementById("startBtn").addEventListener("click", () => {
+    gameStarted = true;
+    document.getElementById("menu").style.display = "none";
+});
+
+document.getElementById("optionsBtn").addEventListener("click", () => {
+    alert("Options are not implemented yet!");
+});
 </script>
 </body>
 </html>
